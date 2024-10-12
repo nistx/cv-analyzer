@@ -1,1 +1,1 @@
-from fastapi import FastAPIapp = FastAPI()@app.get("/")async def root():    return {"message": "Hello World"}@app.get("/hello/{name}")async def say_hello(name: str):    return {"message": f"Hello {name}"}
+from fastapi import FastAPIfrom src.api import cv_rankingapp = FastAPI()app.include_router(cv_ranking.router, prefix="/api/v1", tags=["CV Ranking"])@app.get("/")async def root():    return {"message": "Hello World"}@app.get("/hello/{name}")async def say_hello(name: str):    return {"message": f"Hello {name}"}
