@@ -5,19 +5,31 @@ GPT_MODEL = "gpt-4o-2024-08-06"
 
 async def get_skills_from_gpt4(cv_text: str, job_description: str) -> FinalResponse:
     prompt = f"""    
-    A continuación te proporcionaré un CV y una oferta de trabajo. Quiero que realices lo siguiente:
+    Extrae las habilidades técnicas y blandas del CV. Evalúa cada habilidad según la relevancia para la oferta de trabajo, con un puntaje máximo de 100 puntos, distribuidos de la siguiente manera:
 
-    1. Extrae las habilidades técnicas y habilidades blandas solo del curriculum proporcionado.
-    2. Asigna un puntaje a cada habilidad según el nivel de dominio mostrado en el curriculum:
-        - Para las habilidades técnicas y blandas relevantes para la oferta de trabajo, asigna entre **8 y 10 puntos** según el nivel de experiencia del candidato.
-        - Para habilidades complementarias que no se mencionan directamente en la oferta, pero que son útiles para el puesto, asigna entre **2 y 7 puntos** dependiendo de su relevancia y dominio.
-
-    type: (soft | technical)
-    name: (nombre de la habilidad)
+    1. Habilidades técnicas clave (máx. 70 puntos):
+        - Alta relevancia (7-10 puntos): Si es una habilidad crítica y está bien desarrollada.
+        - Baja relevancia (0-5 puntos): Si falta o es deficiente.
+    
+    2. Habilidades técnicas complementarias:
+        - Relevantes (máx. 20 puntos): 6-8 puntos si se relacionan indirectamente con el puesto.
+        - No relevantes (máx. 5 puntos): 1-5 puntos si no están directamente relacionadas pero son útiles.
+    
+    3. Habilidades blandas (máx. 5 puntos):
+        - 1-5 puntos según su importancia en la oferta.
+    
+    Deducciones:
+    Las deducciones se expresan con un puntaje negativo y deben incluir la habilidad faltante.
+        - Falta de una habilidad técnica crítica, reduce 10-15 puntos.
+        - Falta de una habilidad técnica deseada, reduce 2-5 puntos.
+        - Falta de una habilidad blanda clave, reduce 1-3 puntos.
+   
+    type: (soft | technical)  
+    name: (nombre de la habilidad)  
     score: (puntaje asignado)
 
-    Usa los siguientes textos de referencia:
-
+    
+    Referencia:
     CV: {cv_text}
     Oferta de Trabajo: {job_description}
     """
