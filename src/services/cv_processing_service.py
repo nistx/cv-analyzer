@@ -3,8 +3,7 @@ from fastapi import UploadFile
 from pdfminer.high_level import extract_text
 from tempfile import NamedTemporaryFile
 from fastapi.concurrency import run_in_threadpool
-
-personal_data_storage = {"emails": [], "phones": []}
+from src.models.schemas import PersonalData
 
 def clean_text(text: str) -> str:
     special_chars_pattern = re.compile(r'[^\w\s@%_.,-]')
@@ -17,23 +16,20 @@ def clean_text(text: str) -> str:
 
     return cleaned_text.strip()
 
-def extract_personal_data_and_remove(text: str) -> tuple:
+def extract_personal_data_and_remove(text: str) -> tuple[PersonalData, str]:
     regex_email = r'[a-zA-Z0-9_.+-]+@[a-zA-Z0-9-]+\.[a-zA-Z0-9-.]+'
     regex_phone = r'\b(?:\+?\d{1,3}[-.\s]?)?(?:\d{3,4}[-.\s]?){2,3}\d{3,4}\b'
 
-    email = re.findall(regex_email, text)
-    phone = re.findall(regex_phone, text)
+    email = re.search(regex_email, text).group(0)
+    phone = re.search(regex_phone, text).group(0)
 
     text_without_email = re.sub(regex_email, '', text)
     cleaned_text = re.sub(regex_phone, '', text_without_email)
 
-    return {"emails": email, "phones": phone}, cleaned_text
+    return PersonalData(email=email, phone=phone), cleaned_text
 
-def store_personal_data(personal_data: dict):
-    personal_data_storage["emails"].extend(personal_data["emails"])
-    personal_data_storage["phones"].extend(personal_data["phones"])
 
-async def extract_text_from_cv(cv_file: UploadFile) -> str:
+async def extract_text_from_cv(cv_file: UploadFile) -> tuple[PersonalData, str]:
     try:
         with NamedTemporaryFile(delete=False, suffix=".pdf") as tmp:
             tmp.write(await cv_file.read())
@@ -50,4 +46,4 @@ async def extract_text_from_cv(cv_file: UploadFile) -> str:
     finally:
         if os.path.exists(tmp_path):
             os.remove(tmp_path)
-    return cleaned_text_without_personal
+    return personal_data, cleaned_text_without_personal

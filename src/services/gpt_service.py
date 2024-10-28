@@ -1,33 +1,20 @@
 from src.core.openai_client import get_openai_client
-from src.models.schemas import FinalResponse
+from src.models.schemas import CVSections
 
 GPT_MODEL = "gpt-4o-2024-08-06"
 
-async def get_skills_from_gpt4(cv_text: str, job_description: str) -> FinalResponse:
+async def get_cv_sections(cv_text: str, job_description: str) -> CVSections:
     prompt = f"""    
-    Extrae las habilidades técnicas y blandas del CV. Evalúa cada habilidad según la relevancia para la oferta de trabajo, con un puntaje máximo de 100 puntos, distribuidos de la siguiente manera:
-
-    1. Habilidades técnicas clave (máx. 70 puntos):
-        - Alta relevancia (7-10 puntos): Si es una habilidad crítica y está bien desarrollada.
-        - Baja relevancia (0-5 puntos): Si falta o es deficiente.
-    
-    2. Habilidades técnicas complementarias:
-        - Relevantes (máx. 20 puntos): 6-8 puntos si se relacionan indirectamente con el puesto.
-        - No relevantes (máx. 5 puntos): 1-5 puntos si no están directamente relacionadas pero son útiles.
-    
-    3. Habilidades blandas (máx. 5 puntos):
-        - 1-5 puntos según su importancia en la oferta.
-    
-    Deducciones:
-    Las deducciones se expresan con un puntaje negativo y deben incluir la habilidad faltante.
-        - Falta de una habilidad técnica crítica, reduce 10-15 puntos.
-        - Falta de una habilidad técnica deseada, reduce 2-5 puntos.
-        - Falta de una habilidad blanda clave, reduce 1-3 puntos.
-   
-    type: (soft | technical)  
-    name: (nombre de la habilidad)  
-    score: (puntaje asignado)
-
+    A continuación te proporcionaré un CV y una oferta de trabajo. Realiza el siguiente análisis:
+    1. Identifica las secciones clave del CV en español.
+    2. Evalua y asigna un puntaje a las Habilidades (máx 100 puntos):
+    2.1. Habilidades Técnicas:
+        2.1.1. Relevancia: Califica cada habilidad técnica del candidato como relevante (7-10 puntos), complementaria (6-8 puntos) o no relevante (0-5 puntos) en relación a los requisitos de la oferta de trabajo.
+        2.1.2. Críticas: Si alguna habilidad técnica crítica no está presente en el CV, asigna -10 puntos.
+        2.1.3. Deseadas: Si alguna habilidad técnica deseada no está presente, asigna un puntaje negativo entre -2 y -5 puntos, dependiendo de su importancia.
+    2.2. Habilidades Blandas: Asigna un puntaje entre 1 y 5 puntos a las habilidades blandas del candidato, considerando su relevancia para el puesto.
+    2.3. Falta de Habilidades: Si identificas alguna habilidad blanda clave que debería estar presente y no lo está, asigna un puntaje negativo entre -1 y -3 puntos.
+    3. Formato de Fechas: Utiliza el formato MM/AAAA.
     
     Referencia:
     CV: {cv_text}
@@ -40,10 +27,10 @@ async def get_skills_from_gpt4(cv_text: str, job_description: str) -> FinalRespo
         response = client.beta.chat.completions.parse(
             model= GPT_MODEL,
             messages=[
-                {"role": "system", "content": "Eres un experto en análisis de habilidades y reclutamiento."},
+                {"role": "system", "content": "Eres un experto en análisis de currículums, habilidades y reclutamiento."},
                 {"role": "user", "content": prompt}
             ],
-            response_format = FinalResponse
+            response_format = CVSections
         )
 
         result = response.choices[0].message.parsed
