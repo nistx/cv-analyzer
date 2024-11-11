@@ -5,16 +5,21 @@ GPT_MODEL = "gpt-4o-2024-08-06"
 
 async def get_cv_sections(cv_text: str, job_description: str) -> CVSections:
     prompt = f"""    
-    A continuación te proporcionaré un CV y una oferta de trabajo. Realiza el siguiente análisis:
-    1. Identifica las secciones clave del CV en español.
-    2. Evalua y asigna un puntaje a las Habilidades (máx 100 puntos):
+    1. Identifica las secciones clave del CV en español.    
+    2. Evalúa las habilidades en función de la oferta de trabajo y asigna puntajes positivos y negativos según los criterios de abajo.
     2.1. Habilidades Técnicas:
-        2.1.1. Relevancia: Califica cada habilidad técnica del candidato como relevante (7-10 puntos), complementaria (6-8 puntos) o no relevante (0-5 puntos) en relación a los requisitos de la oferta de trabajo.
-        2.1.2. Críticas: Si alguna habilidad técnica crítica no está presente en el CV, asigna -10 puntos.
-        2.1.3. Deseadas: Si alguna habilidad técnica deseada no está presente, asigna un puntaje negativo entre -2 y -5 puntos, dependiendo de su importancia.
-    2.2. Habilidades Blandas: Asigna un puntaje entre 1 y 5 puntos a las habilidades blandas del candidato, considerando su relevancia para el puesto.
-    2.3. Falta de Habilidades: Si identificas alguna habilidad blanda clave que debería estar presente y no lo está, asigna un puntaje negativo entre -1 y -3 puntos.
-    3. Formato de Fechas: Utiliza el formato MM/AAAA.
+        2.1.1. Relevante: Puntaje de +7 a +10.
+        2.1.2. Complementaria: Puntaje de +3 a +6.
+        2.1.3. No Relevante: Puntaje de 0.
+    2.2. Habilidades Blandas:
+        2.2.1. Relevante: Puntaje de +1 a +3.
+        2.2.2. Complementaria: Puntaje de +1.
+        2.2.3. No Relevante: Puntaje de 0.
+    2.3. Ausencia de Habilidades (Falta de Requisitos):
+        2.3.1. Críticas: Puntaje negativo -10.
+        2.3.2. Deseadas: Puntaje negativo -4.
+    3.Formato de fechas: Utiliza MM/AAAA.
+    4.Genera una justificación general basada en el ajuste del candidato con la oferta de trabajo
     
     Referencia:
     CV: {cv_text}

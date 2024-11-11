@@ -20,8 +20,11 @@ def extract_personal_data_and_remove(text: str) -> tuple[PersonalData, str]:
     regex_email = r'[a-zA-Z0-9_.+-]+@[a-zA-Z0-9-]+\.[a-zA-Z0-9-.]+'
     regex_phone = r'\b(?:\+?\d{1,3}[-.\s]?)?(?:\d{3,4}[-.\s]?){2,3}\d{3,4}\b'
 
-    email = re.search(regex_email, text).group(0)
-    phone = re.search(regex_phone, text).group(0)
+    email_match = re.search(regex_email, text)
+    phone_match = re.search(regex_phone, text)
+
+    email = email_match.group(0) if email_match else "Not Found"
+    phone = phone_match.group(0) if phone_match else "Not Found"
 
     text_without_email = re.sub(regex_email, '', text)
     cleaned_text = re.sub(regex_phone, '', text_without_email)

@@ -28,6 +28,7 @@ class Education(BaseModel):
 class Skill(BaseModel):
     type: Literal["technical", "soft"]
     name: str
+    status: Literal["present", "missing"]
     score: int
 
 class Certification(BaseModel):
@@ -57,3 +58,4 @@ class CVSections(BaseModel):
     languages: List[Language]
     projects: Optional[List[Project]]
     volunteering: Optional[List[Volunteering]]
+    justification: str
